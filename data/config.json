@@ -1,0 +1,24 @@
+{
+    "multi_day_behavior":"continuous",
+  
+    "devices":{
+  
+      "channel1":{
+  
+        "normal_state":"off",
+  
+        "shabbat_state":"on"
+  
+      },
+  
+      "channel2":{
+  
+        "normal_state":"on",
+  
+        "shabbat_state":"off"
+  
+      }
+  
+    }
+  
+  }

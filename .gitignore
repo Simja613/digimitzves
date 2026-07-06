@@ -1,0 +1,20 @@
+# macOS
+.DS_Store
+
+# VS Code
+.vscode/
+
+# Go
+bin/
+*.test
+*.out
+coverage.out
+
+# Build
+dist/
+
+# Logs
+*.log
+
+# Local data
+data/*.bak
