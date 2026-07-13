@@ -10,4 +10,10 @@ type Context struct {
 	SaveRequired bool
 
 	DetectedMode SystemMode
+
+	NewDevices bool
+
+	MissingDevices bool
+
+	ConfigurationRequired bool
 }

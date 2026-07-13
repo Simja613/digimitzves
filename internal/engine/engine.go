@@ -6,12 +6,15 @@ import (
 	"github.com/digimitzves/core/internal/config"
 	"github.com/digimitzves/core/internal/devices"
 	"github.com/digimitzves/core/internal/model"
+	"github.com/digimitzves/core/internal/registry"
 )
 
 type Engine struct {
 	Config *config.Config
 
 	Events []config.Event
+
+	Registry *registry.Registry
 
 	Job *model.Job
 
@@ -24,4 +27,6 @@ type Engine struct {
 	Mode SystemMode
 
 	Event *config.Event
+
+	Discover func() ([]devices.DiscoveredDevice, error)
 }
