@@ -1,98 +1,136 @@
-# DigiMitzves Architecture
+# ARCHITECTURE
 
-## Overview
+## Purpose
 
-DigiMitzves is designed as an autonomous embedded appliance rather than a traditional smart home application.
+DigiMitzves is designed as a deterministic appliance for Shabbat and Yom Tov automation.
 
-The system operates entirely offline and is intended to continue functioning predictably regardless of Internet connectivity, cloud services or external infrastructure.
+Unlike general-purpose home automation systems, DigiMitzves does not continuously make decisions based on external events. Instead, it continuously verifies that the system state matches a previously calculated execution plan.
 
-The primary architectural goal is deterministic behavior.
-
----
-
-# Design Principles
-
-The project follows several core principles.
-
-## Deterministic
-
-The same input must always produce the same output.
-
-The system never relies on randomness, cloud state or asynchronous external services.
+The architecture is centered around deterministic state transitions, recovery, and reliability.
 
 ---
 
-## Autonomous
+# System Overview
 
-All decisions are made locally.
-
-No Internet connection is required for normal operation.
-
----
-
-## Recoverable
-
-Power loss is considered a normal operating condition.
-
-After any reboot the system must recover its state automatically without user intervention.
-
----
-
-## Observable
-
-The current state of the system must always be derivable from persistent data.
-
-The engine never depends on hidden runtime state.
-
----
-
-## Idempotent
-
-Every engine cycle should safely repeat the same operations without causing duplicate actions.
-
-Running the control loop twice must produce the same result as running it once.
-
----
-
-# High-Level Architecture
-
+```text
+                   Configuration
+                         │
+                         ▼
+                  Event Scheduler
+                         │
+                         ▼
+                 Current Event Detection
+                         │
+                         ▼
+                     Compiler
+                         │
+                         ▼
+                       Job
+                         │
+                         ▼
+                     Engine
+                         │
+          ┌──────────────┼──────────────┐
+          ▼              ▼              ▼
+      Recovery     Synchronize     Reconcile
+                         │
+                         ▼
+                     Execute
+                         │
+                         ▼
+                    Hardware
 ```
-           Events
-              │
-              ▼
-         Scheduler
-              │
-              ▼
-          Compiler
-              │
-              ▼
-             Job
-              │
-              ▼
-           Engine
-              │
-     ┌────────┴────────┐
-     ▼                 ▼
- Reconciliation    Execution
-     │                 │
-     └────────┬────────┘
-              ▼
-        Physical Devices
+
+Device discovery follows an independent path.
+
+```text
+Devices
+
+    │
+
+Discovery
+
+    │
+
+Registry
+
+    │
+
+Engine
 ```
 
 ---
 
-# Engine
+# Architectural Layers
 
-The Engine is the central control loop.
+## Configuration Layer
 
-It continuously observes the current system state, evaluates required actions and executes only the necessary operations.
+Contains:
 
-The engine itself does not contain hardware-specific logic.
+* user settings
+* schedules
+* device preferences
+* Shabbat configuration
 
-Its responsibility is orchestration.
+Persistent.
 
-Current lifecycle:
+---
+
+## Scheduler
+
+Responsible for:
+
+* locating the current event
+* locating the next event
+* determining event boundaries
+
+Scheduler never creates commands.
+
+---
+
+## Compiler
+
+Input:
+
+* Event
+* Configuration
+* Current State
+
+Output:
+
+* Job
+
+Compiler creates a complete execution plan.
+
+Compiler never executes anything.
+
+---
+
+## Job
+
+A Job is a complete execution plan for one event.
+
+```
+Job
+
+├── Event
+
+├── Status
+
+├── Commands[]
+```
+
+A Job is immutable after creation.
+
+If conditions change, a new Job is created.
+
+---
+
+## Engine
+
+The Engine is the central decision maker.
+
+Engine executes a continuous control loop.
 
 ```
 Validate
@@ -126,126 +164,143 @@ Execute
 Finalize
 ```
 
----
+Each stage has exactly one responsibility.
 
-# Compiler
+Stages communicate only through:
 
-The compiler produces a Job.
+* Engine state
+* Registry
+* Job
+* Context
 
-A Job is not execution.
-
-A Job is a plan describing what should happen.
-
----
-
-# Job
-
-A Job represents a complete execution plan for one event.
-
-A Job contains:
-
-- metadata
-- event boundaries
-- execution status
-- command list
-
-Commands are immutable plans.
-
-Execution updates their status but never changes their intent.
+Stages never invoke each other directly.
 
 ---
 
-# Reconciliation
+## Context
 
-Reconciliation compares three independent realities.
+Context represents the observations and decisions of a single Engine cycle.
+
+It is recreated every cycle.
+
+Typical flags include:
+
+* RecoveryRequired
+* SynchronizationRequired
+* ExecutionRequired
+* SaveRequired
+* ConfigurationRequired
+* NewDevices
+* MissingDevices
+
+Context is not persistent.
+
+---
+
+## Registry
+
+Registry represents the currently known devices.
+
+Each device has one unique record.
+
+Registry stores:
+
+* identity
+* configuration state
+* presence
+* ignore state
+
+Registry never stores schedules.
+
+Registry never executes commands.
+
+---
+
+## Executor
+
+Executor performs physical actions.
+
+Executor knows:
+
+* hardware protocol
+* MQTT
+* GPIO
+* Zigbee
+
+Executor never makes decisions.
+
+---
+
+## Hardware
+
+Hardware is the final execution layer.
+
+Possible implementations include:
+
+* Zigbee2MQTT
+* GPIO
+* RS-485
+* future adapters
+
+The Engine must remain completely independent from hardware implementation.
+
+---
+
+# Control Philosophy
+
+The system follows a repeating observation cycle.
 
 ```
-Current State
+Observe
 
-Desired State
+↓
 
-Current Job
+Context
+
+↓
+
+Decision
+
+↓
+
+Execution
+
+↓
+
+Persistence
 ```
 
-Only after comparing all three does the Engine decide whether action is required.
+Every cycle begins with observing the world.
+
+No stage assumes that previous assumptions are still valid.
 
 ---
 
-# Execution
+# Recovery Philosophy
 
-Execution performs commands that have become due.
+Recovery has higher priority than execution.
 
-Execution never makes business decisions.
+Before executing any command, the Engine must first verify:
 
-All decisions are made earlier by the Engine.
+* current state
+* active event
+* device availability
+* Job validity
 
----
-
-# Persistence
-
-The appliance stores persistent information locally.
-
-Examples include:
-
-- configuration
-- event schedule
-- runtime state
-- execution jobs
-
-Persistent storage allows complete recovery after reboot.
+Only after the system is consistent may execution continue.
 
 ---
 
-# Hardware Abstraction
+# Design Objectives
 
-The Engine never communicates directly with hardware.
+The architecture is designed to provide:
 
-Future architecture:
+* deterministic behavior
+* repeatable execution
+* hardware independence
+* autonomous operation
+* power-loss recovery
+* simple testing
+* long-term maintainability
 
-```
-Engine
-
-   │
-
-Executor Interface
-
-   │
-
-MQTT Adapter
-
-   │
-
-Mosquitto
-
-   │
-
-Zigbee2MQTT
-
-   │
-
-Zigbee Devices
-```
-
-This separation allows different transport layers without changing business logic.
-
----
-
-# State Machines
-
-The system is evolving toward multiple independent state machines.
-
-Examples include:
-
-- Runtime mode
-- Shabbat mode
-- Device state
-- Recovery state
-- Installation mode
-
-State machines communicate through events rather than direct calls.
-
----
-
-# Future Direction
-
-The long-term objective is a reliable embedded appliance capable of operating continuously for years with predictable behavior and automatic recovery after any interruption.
+These goals take precedence over execution speed or implementation convenience.
