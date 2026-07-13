@@ -1,167 +1,174 @@
-# DigiMitzves Roadmap
+# ROADMAP
 
 ## Vision
 
-DigiMitzves aims to become a fully autonomous appliance for Shabbat and Yom Tov automation.
+DigiMitzves is being developed as a reliable appliance dedicated to Shabbat and Yom Tov automation.
 
-The long-term objective is to provide a reliable embedded system that continues operating safely and predictably without Internet connectivity or user intervention.
+The roadmap follows architectural maturity rather than feature count.
 
----
-
-# Development Stages
-
-## Stage 1 — Core Foundation
-
-Current stage.
-
-Goals:
-
-- Engine lifecycle
-- Scheduler
-- Compiler
-- Job model
-- Command model
-- Persistent state
-- Recovery pipeline
-
-Status:
-
-🟢 In Progress
+Each phase should leave the system stable, testable and recoverable.
 
 ---
 
-## Stage 2 — Device Abstraction
+# Phase 1 — Core Foundation
 
-Goals:
+Status: **Completed**
 
-- Executor interface
-- Device registry
-- Hardware abstraction
-- Transport-independent execution
-- State synchronization
+Objectives:
 
-Status:
+* Project structure
+* Engine lifecycle
+* Scheduler
+* Compiler
+* Job model
+* Registry
+* Synchronization framework
+* Recovery framework
+* Initial unit tests
 
-⚪ Planned
+Result:
 
----
-
-## Stage 3 — Zigbee Integration
-
-Goals:
-
-- Zigbee2MQTT adapter
-- MQTT execution
-- Device discovery
-- Friendly name management
-- Signal quality monitoring
-
-Status:
-
-⚪ Planned
+A deterministic application core capable of observing the system and making consistent decisions.
 
 ---
 
-## Stage 4 — Installation Workflow
+# Phase 2 — Job Lifecycle
 
-Goals:
+Status: **Current**
 
-- Installation mode
-- Device pairing
-- Device naming
-- Configuration validation
-- Diagnostics
+Objectives:
 
-Status:
+* Job validation
+* Job generation
+* Job replacement
+* Job persistence
+* Job execution lifecycle
+* Command lifecycle
+* Reconciliation improvements
 
-⚪ Planned
+Result:
 
----
-
-## Stage 5 — Web Configuration
-
-Goals:
-
-- Local web interface
-- Configuration editor
-- Schedule editor
-- Device management
-- Runtime monitoring
-
-Status:
-
-⚪ Planned
+The Engine manages a complete execution plan instead of isolated commands.
 
 ---
 
-## Stage 6 — Embedded Appliance
+# Phase 3 — Device Integration
 
-Goals:
+Objectives:
 
-- Raspberry Pi deployment
-- systemd services
-- Automatic startup
-- Automatic recovery
-- Read-only operating mode where appropriate
+* Discovery improvements
+* Missing device detection
+* Ignored devices
+* Configuration workflow
+* Registry persistence
+* Device recovery
 
-Status:
+Result:
 
-⚪ Planned
-
----
-
-## Stage 7 — Production Appliance
-
-Goals:
-
-- Installation image
-- Complete documentation
-- Stable release process
-- Long-term maintenance
-- Community feedback
-
-Status:
-
-⚪ Planned
+Reliable long-term device management independent of transport technology.
 
 ---
 
-# Engineering Priorities
+# Phase 4 — Executor
 
-The project prioritizes correctness over features.
+Objectives:
 
-New functionality is introduced only after the underlying architecture has been validated.
+* MQTT adapter
+* Zigbee2MQTT integration
+* Hardware abstraction
+* Command acknowledgements
+* Execution reliability
 
-Preferred order:
+Result:
 
-1. Reliability
-2. Recovery
-3. Determinism
-4. Simplicity
-5. Performance
-6. Convenience
-
----
-
-# Non-Goals
-
-The project is intentionally **not** designed to be:
-
-- cloud-dependent;
-- mobile-first;
-- Internet-connected by default;
-- dependent on third-party automation platforms;
-- a generic home automation framework.
-
-Its purpose is focused, predictable and reliable Shabbat and Yom Tov automation.
+Business logic becomes completely independent from physical hardware.
 
 ---
 
-# Long-Term Goals
+# Phase 5 — Web Interface
 
-- Autonomous operation for years without maintenance.
-- Complete recovery after unexpected power loss.
-- Predictable behavior under all operating conditions.
-- Hardware independence through well-defined interfaces.
-- Professional embedded software architecture.
-- A trustworthy appliance suitable for everyday use in observant Jewish homes.
+Objectives:
+
+* Device configuration
+* Schedule configuration
+* Registry inspection
+* Job inspection
+* System status
+* Recovery interface
+
+Result:
+
+Complete appliance management without exposing implementation details.
+
+---
+
+# Phase 6 — Installation Mode
+
+Objectives:
+
+* Automatic discovery
+* Friendly name assignment
+* Initial configuration
+* Ignore workflow
+* Device replacement
+* Configuration validation
+
+Result:
+
+A guided installation experience suitable for non-technical users.
+
+---
+
+# Phase 7 — Appliance
+
+Objectives:
+
+* Raspberry Pi image
+* systemd services
+* automatic startup
+* persistent storage
+* logging
+* update strategy
+
+Result:
+
+A standalone appliance requiring minimal administration.
+
+---
+
+# Phase 8 — Production
+
+Objectives:
+
+* Long-term stability
+* Extensive testing
+* Documentation completion
+* Deployment automation
+* Release process
+
+Result:
+
+A production-ready appliance for everyday operation.
+
+---
+
+# Long-Term Direction
+
+The long-term goal is not to become a general home automation platform.
+
+The goal is to become a dependable appliance that performs one specific task exceptionally well.
+
+Future features will be accepted only if they improve:
+
+* reliability
+* recoverability
+* simplicity
+* maintainability
+
+Features that increase complexity without improving these qualities should be rejected.
+
+---
+
+# Guiding Principle
+
+Every completed phase should improve the architecture without requiring a major redesign of previous phases.
