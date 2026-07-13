@@ -1,144 +1,163 @@
-# DigiMitzves Device Model
+# DEVICE MODEL
 
-## Philosophy
+## Purpose
 
-For DigiMitzves, a Device is not a physical Zigbee switch.
+This document defines the meaning of a Device within DigiMitzves.
 
-A Device is an independently controlled object that owns its own configuration,
-its own schedule and its own lifecycle.
+A Device is a logical entity used by the Engine to perform automation.
 
-The system controls Devices.
+It is intentionally independent from any specific transport or hardware implementation.
+
+---
+
+# Philosophy
+
+For DigiMitzves, a Device is **not** a physical Zigbee switch.
+
+A Device is an independently controlled logical object.
+
+The Engine controls Devices.
 
 The transport layer controls hardware.
 
-This separation allows the automation engine to remain independent from Zigbee,
-MQTT or any future transport technology.
+This separation allows the automation engine to remain independent from Zigbee, MQTT, GPIO, RS-485, or any future communication technology.
 
 ---
 
-## Physical hierarchy
+# Logical Device
 
-One physical Zigbee relay may expose multiple independently controlled channels.
+A Device owns:
 
-Example
+* identity
+* configuration
+* schedule
+* operational state
 
+A Device does **not** own:
+
+* IEEE address
+* MQTT topics
+* Zigbee pairing
+* network topology
+* transport protocol
+
+Those belong to the transport layer.
+
+---
+
+# Physical Representation
+
+A single physical device may expose one or more independently controlled endpoints.
+
+Example:
+
+```text
 Kitchen Relay
 
-    Channel 1
-    Channel 2
+├── Channel 1
+└── Channel 2
+```
 
-Inside DigiMitzves these become
+Inside DigiMitzves:
 
+```text
 Kitchen Channel 1
 
 Kitchen Channel 2
+```
 
-Each channel is an independent Device.
+Each channel becomes an independent Device.
+
+From the Engine's perspective, there is no difference between:
+
+* one physical relay,
+* one channel of a multi-channel relay,
+* a virtual actuator,
+* or any future controllable endpoint.
+
+Every controllable endpoint is represented as one logical Device.
 
 ---
 
-## Device ownership
+# Ownership
 
-Zigbee2MQTT owns:
+## Transport Layer
 
-- IEEE address
-- pairing
-- network topology
-- availability
-- firmware
-- LQI
-- endpoints
+The transport layer owns:
+
+* hardware communication
+* device discovery
+* pairing
+* availability detection
+* firmware management
+* protocol-specific information
+
+Examples include:
+
+* Zigbee2MQTT
+* GPIO
+* RS-485
+* future adapters
+
+---
+
+## DigiMitzves
 
 DigiMitzves owns:
 
-- Device identity
-- user configuration
-- schedules
-- operational status
-- Shabbat behaviour
-- lifecycle
-- warnings
+* Device identity
+* user configuration
+* schedules
+* operational state
+* Shabbat behavior
+
+The Engine never depends on transport-specific details.
 
 ---
 
-## Device lifecycle
+# Device Identity
 
-Discovered
+Each Device has one stable internal identifier.
 
-↓
+The identifier must never change during the lifetime of the Device.
 
-Named
+Changing a friendly name does not create a new Device.
 
-↓
-
-Configuration Required
-
-↓
-
-Operational
-
-↓
-
-Missing
-
-↓
-
-Ignored
-
-↓
-
-Operational
-
-or
-
-↓
-
-Deleted
+Changing the transport implementation does not create a new Device.
 
 ---
 
-## Ignore
+# Operational State
 
-Ignore does not remove the Device.
+Whether a Device is currently available or configured is determined by the Registry.
 
-Ignore only suppresses the warning state.
-
-If the Device reappears on the network:
-
-Ignored flag is cleared automatically
-
-↓
-
-the previous configuration becomes active again.
+The Device itself remains a logical object regardless of its current operational state.
 
 ---
 
-## Operational definition
+# Engine Responsibility
 
-A Device is considered operational when
+The Engine never communicates directly with physical hardware.
 
-Present
+It always operates on logical Devices.
 
-AND
+The Engine never needs to know:
 
-Configured
+* IEEE addresses
+* MQTT topics
+* Zigbee endpoints
+* transport implementation
 
-are both true.
-
----
-
-## Engine responsibility
-
-The Engine never creates or deletes Devices directly.
-
-The Engine only observes their current state.
-
-Administrative actions are performed through the Web interface.
+It only knows Devices.
 
 ---
 
-## Design principle
+# Design Principles
 
-The Engine controls logical Devices.
+A Device represents **what** can be controlled.
 
-The transport layer controls physical hardware.
+The transport layer determines **how** it is controlled.
+
+Business logic operates exclusively on logical Devices.
+
+Hardware-specific details remain isolated outside the Engine.
