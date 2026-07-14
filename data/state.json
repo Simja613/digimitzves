@@ -1,5 +1,5 @@
 {
-    "channel1":"on",
-    "channel2":"off",
-    "shabbat_mode":true
+    "target_output":"on",
+    "operational_output":"off",
+    "target_active":true
   }

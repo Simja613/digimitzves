@@ -6,10 +6,10 @@ import (
 )
 
 type State struct {
-	Channel1 string `json:"channel1"`
-	Channel2 string `json:"channel2"`
+	TargetOutput      string `json:"target_output"`
+	OperationalOutput string `json:"operational_output"`
 
-	ShabbatMode bool `json:"shabbat_mode"`
+	TargetActive bool `json:"target_active"`
 }
 
 func LoadState(path string) (*State, error) {

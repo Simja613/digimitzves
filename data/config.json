@@ -3,19 +3,19 @@
   
     "devices":{
   
-      "channel1":{
+      "target_output":{
   
-        "normal_state":"off",
+        "operational_state":"off",
   
-        "shabbat_state":"on"
+        "target_state":"on"
   
       },
   
-      "channel2":{
+      "operational_output":{
   
-        "normal_state":"on",
+        "operational_state":"on",
   
-        "shabbat_state":"off"
+        "target_state":"off"
   
       }
   

@@ -38,9 +38,9 @@ func Compile(
 
 	commands := []model.Command{}
 
-	// вход в Shabbat mode
+	// enter Target mode
 
-	if !state.ShabbatMode {
+	if !state.TargetActive {
 
 		for device, settings := range cfg.Devices {
 
@@ -49,14 +49,14 @@ func Compile(
 				state,
 			)
 
-			if current != settings.ShabbatState {
+			if current != settings.TargetState {
 
 				commands = append(
 					commands,
 					model.Command{
 						Time:   start,
 						Device: device,
-						Action: settings.ShabbatState,
+						Action: settings.TargetState,
 						Status: model.CommandPlanned,
 					},
 				)
@@ -67,7 +67,7 @@ func Compile(
 
 	}
 
-	// выход из Shabbat mode
+	// return to Operational mode
 
 	for device, settings := range cfg.Devices {
 
@@ -76,14 +76,14 @@ func Compile(
 			state,
 		)
 
-		if current != settings.NormalState {
+		if current != settings.OperationalState {
 
 			commands = append(
 				commands,
 				model.Command{
 					Time:   end,
 					Device: device,
-					Action: settings.NormalState,
+					Action: settings.OperationalState,
 					Status: model.CommandPlanned,
 				},
 			)
@@ -111,13 +111,13 @@ func getDeviceState(
 
 	switch device {
 
-	case "channel1":
+	case "TargetOutput":
 
-		return state.Channel1
+		return state.TargetOutput
 
-	case "channel2":
+	case "OperationalOutput":
 
-		return state.Channel2
+		return state.OperationalOutput
 
 	default:
 

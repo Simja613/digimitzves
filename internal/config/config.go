@@ -6,9 +6,9 @@ import (
 )
 
 type DeviceConfig struct {
-	NormalState string `json:"normal_state"`
+	OperationalState string `json:"operational_state"`
 
-	ShabbatState string `json:"shabbat_state"`
+	TargetState string `json:"target_state"`
 }
 
 type Config struct {

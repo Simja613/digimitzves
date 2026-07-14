@@ -17,13 +17,13 @@ func Apply(
 
 		switch cmd.Device {
 
-		case "channel1":
+		case "TargetOutput":
 
-			state.Channel1 = cmd.Action
+			state.TargetOutput = cmd.Action
 
-		case "channel2":
+		case "OperationalOutput":
 
-			state.Channel2 = cmd.Action
+			state.OperationalOutput = cmd.Action
 
 		}
 
